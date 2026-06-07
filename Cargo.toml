@@ -1,0 +1,6 @@
+[workspace]
+members = ["projects/cli-text-processor",
+    "week-01-ownership",
+    "week-02-borrowing", "week-03-lifetimes-traits", "week-04-generics", "week-05-error-handling", "week-06-enums",
+]
+resolver = "2"
