@@ -1,7 +1,7 @@
 //! Commands for the text processor CLI.
 
 use crate::error::{ArgsError, ValidCommand};
-use std::{fmt, io};
+use std::fmt;
 
 /// Represents a command for the text processor CLI.
 #[derive(Debug)]
@@ -123,58 +123,23 @@ impl fmt::Display for Command {
     }
 }
 
-/// Prints command-specific help text for a command name.
-#[allow(dead_code)]
-pub fn print_help(cmd: &str) {
-    let stdout = io::stdout();
-    let mut handle = stdout.lock();
-    write_help(cmd, &mut handle).expect("failed to write command help");
-}
-
-/// Writes command-specific help text for a command name.
-pub fn write_help<W: io::Write>(cmd: &str, writer: &mut W) -> io::Result<()> {
+/// Returns command-specific help text for a command name.
+pub fn get_help(cmd: &str) -> String {
     match cmd {
-        "stats" => writeln!(writer, "'stats': Print general statistics about the file."),
-        "longest-line" => writeln!(
-            writer,
-            "'longest-line': Print the longest line in the file."
-        ),
-        "unique-lines" => writeln!(writer, "'unique-lines': Print unique lines in the file."),
-        "find" => writeln!(
-            writer,
-            "'find <pattern>': Find lines containing a specific pattern."
-        ),
-        "top-words" => {
-            writeln!(
-                writer,
-                "'top-words <count>': Print the top N most frequent words in the file."
-            )
-        }
-        "filter-lines" => {
-            writeln!(
-                writer,
-                "'filter-lines <pattern>': Filter lines containing a specific pattern."
-            )
-        }
-        "replace" => writeln!(
-            writer,
-            "'replace <pattern> <replacement>': Replace occurrences of a pattern with a replacement."
-        ),
-        x => writeln!(writer, "Unsupported command: {}", x),
+        "stats" => "'stats': Print general statistics about the file.".to_string(),
+        "longest-line" => "'longest-line': Print the longest line in the file.".to_string(),
+        "unique-lines" => "'unique-lines': Print unique lines in the file.".to_string(),
+        "find" => "'find <pattern>': Find lines containing a specific pattern.".to_string(),
+        "top-words" => "'top-words <count>': Print the top N most frequent words in the file.".to_string(),
+        "filter-lines" => "'filter-lines <pattern>': Filter lines containing a specific pattern.".to_string(),
+        "replace" => "'replace <pattern> <replacement>': Replace occurrences of a pattern with a replacement.".to_string(),
+        x => format!("Unsupported command: {}", x),
     }
 }
 
-/// Prints help text for every supported command.
-#[allow(dead_code)]
-pub fn print_help_all() {
-    let stdout = io::stdout();
-    let mut handle = stdout.lock();
-    write_help_all(&mut handle).expect("failed to write command help");
-}
-
-/// Writes help text for every supported command.
-pub fn write_help_all<W: io::Write>(writer: &mut W) -> io::Result<()> {
-    writeln!(writer, "Available commands:")?;
+/// Gets help text for every supported command.
+pub fn get_help_all() -> String {
+    let mut help = String::from("Available commands:\n");
     for cmd in [
         "stats",
         "longest-line",
@@ -184,9 +149,9 @@ pub fn write_help_all<W: io::Write>(writer: &mut W) -> io::Result<()> {
         "filter-lines",
         "replace",
     ] {
-        write_help(cmd, writer)?;
+        help.push_str(&format!("{}\n", get_help(cmd)));
     }
-    Ok(())
+    help
 }
 
 #[cfg(test)]

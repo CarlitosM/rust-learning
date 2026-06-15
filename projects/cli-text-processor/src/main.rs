@@ -1,7 +1,6 @@
 use std::env;
-use std::io;
 
-use crate::commands::{Command, write_help, write_help_all};
+use crate::commands::{Command, get_help, get_help_all};
 use crate::error::ArgsError;
 
 mod commands;
@@ -17,7 +16,8 @@ fn main() {
             todo!()
         }
         Err(err) => {
-            handle_config_error(err);
+            eprintln!("Error: {:?}", err);
+            println!("{}", get_config_help_msg(err));
         }
     }
 }
@@ -101,35 +101,22 @@ impl Config {
     }
 }
 
-fn handle_config_error(err: ArgsError) {
-    let stdout = io::stdout();
-    let stderr = io::stderr();
-    let mut stdout = stdout.lock();
-    let mut stderr = stderr.lock();
+fn get_config_help_msg(err: ArgsError) -> String {
+    let mut msg = String::from("Arguments pattern: <file> <command> [options]\n");
 
-    write_config_error(err, &mut stdout, &mut stderr).expect("failed to write config error");
-}
-
-fn write_config_error<W, E>(err: ArgsError, stdout: &mut W, stderr: &mut E) -> io::Result<()>
-where
-    W: io::Write,
-    E: io::Write,
-{
-    writeln!(stderr, "Error: {:?}", err)?;
-    writeln!(stdout, "Arguments pattern: <file> <command> [options]")?;
     match err {
         ArgsError::Invalid | ArgsError::NoArgs | ArgsError::MissingCmd => {
-            write_help_all(stdout)?;
+            msg.push_str(&get_help_all());
         }
         ArgsError::MissingOption(cmd) => {
-            write_help(&cmd.0, stdout)?;
+            msg.push_str(&get_help(&cmd.0));
         }
         ArgsError::InvalidOption(cmd, _) => {
-            write_help(&cmd.0, stdout)?;
+            msg.push_str(&get_help(&cmd.0));
         }
     }
 
-    Ok(())
+    msg
 }
 
 #[cfg(test)]
@@ -196,63 +183,44 @@ mod tests {
         assert!(matches!(error, ArgsError::MissingCmd));
     }
 
-    fn config_error_output(err: ArgsError) -> (String, String) {
-        let mut stdout = Vec::new();
-        let mut stderr = Vec::new();
-
-        write_config_error(err, &mut stdout, &mut stderr).unwrap();
-
-        (
-            String::from_utf8(stdout).unwrap(),
-            String::from_utf8(stderr).unwrap(),
-        )
-    }
-
     #[test]
-    fn handle_config_error_prints_all_help_for_general_argument_errors() {
+    fn get_config_help_msg_returns_all_help_for_general_argument_errors() {
         for err in [ArgsError::Invalid, ArgsError::NoArgs, ArgsError::MissingCmd] {
-            let (stdout, stderr) = config_error_output(err);
+            let msg = get_config_help_msg(err);
 
-            assert!(stdout.starts_with("Arguments pattern: <file> <command> [options]\n"));
-            assert!(stdout.contains("Available commands:\n"));
-            assert!(stdout.contains("'stats': Print general statistics about the file.\n"));
+            assert!(msg.starts_with("Arguments pattern: <file> <command> [options]\n"));
+            assert!(msg.contains("Available commands:\n"));
+            assert!(msg.contains("'stats': Print general statistics about the file.\n"));
             assert!(
-                stdout.contains(
+                msg.contains(
                     "'replace <pattern> <replacement>': Replace occurrences of a pattern with a replacement.\n"
                 )
             );
-            assert!(stderr.starts_with("Error: "));
         }
     }
 
     #[test]
-    fn handle_config_error_prints_command_help_for_missing_option() {
-        let (stdout, stderr) =
-            config_error_output(ArgsError::MissingOption(ValidCommand("find".to_string())));
+    fn get_config_help_msg_returns_command_help_for_missing_option() {
+        let msg = get_config_help_msg(ArgsError::MissingOption(ValidCommand("find".to_string())));
 
         assert_eq!(
-            stdout,
+            msg,
             "Arguments pattern: <file> <command> [options]\n\
-             'find <pattern>': Find lines containing a specific pattern.\n"
+             'find <pattern>': Find lines containing a specific pattern."
         );
-        assert_eq!(stderr, "Error: MissingOption(ValidCommand(\"find\"))\n");
     }
 
     #[test]
-    fn handle_config_error_prints_command_help_for_invalid_option() {
-        let (stdout, stderr) = config_error_output(ArgsError::InvalidOption(
+    fn get_config_help_msg_returns_command_help_for_invalid_option() {
+        let msg = get_config_help_msg(ArgsError::InvalidOption(
             ValidCommand("top-words".to_string()),
             InvalidParam("invalid digit".to_string()),
         ));
 
         assert_eq!(
-            stdout,
+            msg,
             "Arguments pattern: <file> <command> [options]\n\
-             'top-words <count>': Print the top N most frequent words in the file.\n"
-        );
-        assert_eq!(
-            stderr,
-            "Error: InvalidOption(ValidCommand(\"top-words\"), InvalidParam(\"invalid digit\"))\n"
+             'top-words <count>': Print the top N most frequent words in the file."
         );
     }
 }
