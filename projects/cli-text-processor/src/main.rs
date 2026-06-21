@@ -16,7 +16,7 @@ fn main() {
             todo!()
         }
         Err(err) => {
-            eprintln!("Error: {:?}", err);
+            eprintln!("Error: {err:?}");
             println!("{}", get_config_help_msg(err));
         }
     }
@@ -29,75 +29,41 @@ struct Config {
 }
 
 impl Config {
-    fn new(args: &Vec<String>) -> Result<Self, ArgsError> {
-        let args_qty = args.len();
+    fn new(args: &[String]) -> Result<Self, ArgsError> {
+        let (file_name, command_args) = match args.split_first() {
+            None => return Err(ArgsError::NoArgs),
+            Some((first, rest)) if first.to_ascii_lowercase().ends_with(".txt") => {
+                if rest.is_empty() {
+                    return Err(ArgsError::MissingCmd);
+                }
 
-        if args_qty == 0 {
-            Err(ArgsError::NoArgs)
-        } else {
-            let (file_name, cmd, params, flags) = args.iter().enumerate().fold(
-                Ok((None, "", Vec::new(), Vec::new())),
-                |acc: Result<(Option<String>, &str, Vec<&str>, Vec<&str>), ArgsError>, (i, arg)| {
-                    match acc {
-                        Ok(mut val) => {
-                            let is_file = arg.ends_with(".txt");
-                            let is_flag = arg.starts_with("--");
+                (Some(first.clone()), rest)
+            }
+            Some(_) => (None, args),
+        };
 
-                            match i {
-                                0 => {
-                                    if is_file && args_qty == 1 {
-                                        return Err(ArgsError::MissingCmd);
-                                    }
+        let (cmd, rest) = command_args.split_first().ok_or(ArgsError::MissingCmd)?;
 
-                                    if is_file && args_qty > 1 {
-                                        val.0 = Some(arg.clone());
-                                    }
-
-                                    if !is_file {
-                                        val.1 = arg;
-                                    }
-                                }
-                                1 => {
-                                    if is_file {
-                                        return Err(ArgsError::Invalid);
-                                    }
-
-                                    let have_file = val.0.is_some();
-
-                                    if have_file {
-                                        val.1 = arg;
-                                    }
-
-                                    if !have_file && !is_flag {
-                                        val.2.push(arg);
-                                    }
-
-                                    if !have_file && is_flag {
-                                        val.3.push(arg);
-                                    }
-                                }
-                                _ => {
-                                    if is_file {
-                                        return Err(ArgsError::Invalid);
-                                    }
-
-                                    if !is_flag {
-                                        val.2.push(arg);
-                                    } else {
-                                        val.3.push(arg);
-                                    }
-                                }
-                            }
-                            Ok(val)
-                        }
-                        Err(e) => Err(e),
-                    }
-                },
-            )?;
-
-            let command = Command::new(cmd, &params, &flags)?;
-            Ok(Config { command, file_name })
+        if rest
+            .iter()
+            .any(|arg| arg.to_ascii_lowercase().ends_with(".txt"))
+        {
+            return Err(ArgsError::Invalid);
         }
+
+        let mut params = Vec::new();
+        let mut flags = Vec::new();
+
+        for arg in rest {
+            if arg.starts_with("--") {
+                flags.push(arg.as_str());
+            } else {
+                params.push(arg.as_str());
+            }
+        }
+
+        let command = Command::new(cmd, &params, &flags)?;
+        Ok(Config { command, file_name })
     }
 }
 
@@ -108,10 +74,7 @@ fn get_config_help_msg(err: ArgsError) -> String {
         ArgsError::Invalid | ArgsError::NoArgs | ArgsError::MissingCmd => {
             msg.push_str(&get_help_all());
         }
-        ArgsError::MissingOption(cmd) => {
-            msg.push_str(&get_help(&cmd.0));
-        }
-        ArgsError::InvalidOption(cmd, _) => {
+        ArgsError::MissingOption(cmd) | ArgsError::InvalidOption(cmd, _) => {
             msg.push_str(&get_help(&cmd.0));
         }
     }

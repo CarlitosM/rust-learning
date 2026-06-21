@@ -1,7 +1,7 @@
 //! Commands for the text processor CLI.
 
 use crate::error::{ArgsError, ValidCommand};
-use std::fmt;
+use std::fmt::{self, Write};
 
 /// Represents a command for the text processor CLI.
 #[derive(Debug)]
@@ -26,12 +26,12 @@ impl fmt::Display for CommandType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             CommandType::Stats => write!(f, "stats"),
-            CommandType::Find(s) => write!(f, "find {}", s),
-            CommandType::Top(n) => write!(f, "top-{}", n),
-            CommandType::Filter(s) => write!(f, "filter {}", s),
+            CommandType::Find(s) => write!(f, "find {s}"),
+            CommandType::Top(n) => write!(f, "top-{n}"),
+            CommandType::Filter(s) => write!(f, "filter {s}"),
             CommandType::Longest => write!(f, "longest-line"),
             CommandType::Unique => write!(f, "unique-lines"),
-            CommandType::Replace(old, new) => write!(f, "replace {} {}", old, new),
+            CommandType::Replace(old, new) => write!(f, "replace {old} {new}"),
         }
     }
 }
@@ -62,7 +62,7 @@ impl Command {
     /// [`ArgsError::InvalidOption`] with the command name and parse failure when
     /// its count cannot be parsed as an unsigned integer, and unknown command
     /// names return [`ArgsError::Invalid`].
-    pub fn new(cmd: &str, options: &Vec<&str>, flags: &Vec<&str>) -> Result<Self, ArgsError> {
+    pub fn new(cmd: &str, options: &[&str], flags: &[&str]) -> Result<Self, ArgsError> {
         let no_options = options.is_empty();
         let ignore_case = flags.contains(&"--ignore-case");
 
@@ -82,7 +82,6 @@ impl Command {
             "find" if !no_options => Ok(Self {
                 cmd: CommandType::Find(options[0].to_string()),
                 case_sensitive: !ignore_case,
-                ..Command::default()
             }),
             "top-words" if !no_options => {
                 let count = options[0].parse::<usize>()?;
@@ -94,7 +93,6 @@ impl Command {
             "filter-lines" if !no_options => Ok(Self {
                 cmd: CommandType::Filter(options[0].to_string()),
                 case_sensitive: !ignore_case,
-                ..Command::default()
             }),
             "replace" if !no_options && options.len() < 2 => Err(ArgsError::MissingOption(
                 ValidCommand("replace".to_string()),
@@ -133,7 +131,7 @@ pub fn get_help(cmd: &str) -> String {
         "top-words" => "'top-words <count>': Print the top N most frequent words in the file.".to_string(),
         "filter-lines" => "'filter-lines <pattern>': Filter lines containing a specific pattern.".to_string(),
         "replace" => "'replace <pattern> <replacement>': Replace occurrences of a pattern with a replacement.".to_string(),
-        x => format!("Unsupported command: {}", x),
+        x => format!("Unsupported command: {x}"),
     }
 }
 
@@ -149,7 +147,7 @@ pub fn get_help_all() -> String {
         "filter-lines",
         "replace",
     ] {
-        help.push_str(&format!("{}\n", get_help(cmd)));
+        let _ = writeln!(help, "{}", get_help(cmd));
     }
     help
 }
