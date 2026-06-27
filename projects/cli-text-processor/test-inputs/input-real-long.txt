@@ -1,0 +1,107 @@
+Rust is a multi-paradigm, general-purpose programming language designed for performance and reliability, especially in systems and concurrent applications. It emphasizes memory safety and data-race freedom without requiring a garbage collector. Rust is syntactically influenced by languages such as C++ and by functional languages, and it provides a strong static type system with features such as traits, generics, and pattern matching.
+
+Etymology
+The name “Rust” is often associated with the metal oxidation process. The project uses the Ferris the Crab mascot and a friendly community culture, while still targeting low-level control.
+
+Design philosophy
+Rust’s central approach is to make common programming errors less likely by construction. The compiler checks program behavior at compile time to prevent invalid memory access and to avoid data races. This design allows developers to write code with the performance characteristics often needed in operating systems, embedded devices, and high-throughput services.
+
+Key concepts
+Ownership
+Ownership is a Rust feature that governs how values are managed in memory. Each value has exactly one owner. When ownership moves, the previous owner can no longer access the value. This model eliminates certain classes of bugs such as use-after-free.
+Borrowing
+Borrowing allows code to access data without taking ownership. References in Rust are either shared (immutable) or exclusive (mutable). The borrow checker ensures that these references are used correctly and that mutable aliases do not exist at the same time as shared aliases.
+Lifetimes
+Lifetimes are a compile-time concept that help describe how long references are valid. Lifetimes make it possible for references to be checked statically, improving safety while still enabling performance.
+
+Syntax and structure
+Programs are organized around modules, crates, and packages. A crate is a compilation unit, while a package can contain one or more crates. Modules help structure code, and items such as functions, structs, enums, and traits define behavior.
+Statements and expressions
+Rust uses expressions for most computation. Control flow constructs like if and match return values, which can be used directly.
+
+Type system
+Traits
+Traits define shared interfaces and enable polymorphism without relying on inheritance hierarchies. Through trait bounds, generic code can be written to work for many types.
+Generics
+Generics allow functions and types to be parameterized over types. This supports code reuse while avoiding runtime overhead.
+Pattern matching
+The match expression provides exhaustive checking. Patterns can destructure values, match ranges, and bind variables.
+
+Memory management
+Rust uses deterministic destruction. When values go out of scope, their destructors are run. This behavior provides predictable resource cleanup for files, sockets, locks, and other resources.
+Manual allocation
+While Rust is safe by default, it still permits low-level allocation using standard library facilities or unsafe code when necessary. The unsafe keyword marks code blocks that the compiler cannot guarantee to be safe, shifting responsibility to the programmer.
+
+Concurrency
+Rust supports threads and message passing. It also provides synchronization primitives such as mutexes and channels.
+Fearless concurrency
+Because the ownership and borrowing rules are enforced by the compiler, many concurrency errors like data races are prevented at compile time. This reduces the need for defensive runtime checks.
+
+Error handling
+Rust encourages explicit handling of failures. The Result type models success and failure, while Option represents the presence or absence of a value.
+Common patterns
+The ? operator can propagate errors concisely. Pattern matching is commonly used to handle different error variants.
+
+Tooling and ecosystem
+Cargo
+Cargo is Rust’s build system and package manager. It manages dependencies, compilation, testing, and documentation. Cargo also supports running examples and benchmarking.
+Crates and crates.io
+Third-party libraries are distributed as crates and are published through the crates.io registry. The ecosystem includes libraries for networking, parsing, serialization, concurrency, and more.
+
+Community
+Rust’s community focuses on documentation, mentorship, and tooling. Contributions to the compiler, standard library, and ecosystem are coordinated through forums, issue trackers, and design discussions.
+
+Adoption
+Rust is used in performance-critical applications. Examples include command-line tools, network services, and embedded systems. Organizations adopt Rust to reduce reliability issues and to gain confidence in concurrent code.
+
+Examples (text-only)
+A basic function might take two integers and return their sum. In Rust, values can be passed by value or by reference depending on ownership requirements.
+Collections
+Rust provides standard collection types such as Vec for dynamic arrays, HashMap for key-value mappings, and BTreeMap for ordered maps. Iterators offer a unified way to traverse collections.
+
+Words for testing
+rust RUST Rust rUsT
+Ownership ownership Ownership
+borrow borrow Borrow BORROW
+error error Error result RESULT result
+result option Option OPTION option
+match match Match MATCH
+pattern pattern Pattern PATTERN
+cargo Cargo CARGO cargo
+
+Find and tokenize notes
+This text contains punctuation: commas, periods, semicolons; colons: and parentheses (like this). It also contains quotes such as “reliability” and “safety”.
+It includes hyphenated words like performance-critical and low-level control.
+It also includes repeated phrases: memory safety and memory safety and memory safety.
+For frequency testing, the word “rust” appears many times: rust rust rust rust.
+
+Edge-case lines for filtering and longest-line
+This line is intentionally made quite long to test longest-line output: Rust encourages writing code that is explicit about ownership, borrowing, lifetimes, and error handling, helping developers reason about correctness in complex systems.
+Short line.
+Another short line.
+A line with mixed CASE: RuSt is designed for safety, speed, and concurrency.
+A line containing the word FIND twice: find and FIND and Find.
+
+Whitespace and spacing stress
+This   line has    multiple spaces.
+This	line has	tabs.
+This line    has mixed   spacing around words.
+
+Table-like text (not an actual table)
+Name | Meaning | Notes
+Rust | Language | Safety-first
+Cargo | Tooling | Builds and tests
+Crates.io | Registry | Publishes dependencies
+
+Additional repeated content to increase size
+Rust is a systems programming language that offers memory safety without garbage collection.
+Rust is used for web services and command-line tools.
+Rust is used for embedded development where predictable performance matters.
+Rust is also used in concurrent programs where data races must be avoided.
+
+Section: Summary
+Rust is designed to prevent many memory and concurrency bugs at compile time. Its ownership system, borrowing rules, and type-driven abstractions help developers build reliable software with high performance.
+Rust also benefits from a mature toolchain and a growing ecosystem.
+
+Footer
+This file is for testing text processing commands such as stats, find, top-words, filter-lines, and longest-line. It includes repeated words and varied punctuation to stress-test tokenization.

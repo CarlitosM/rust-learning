@@ -1,0 +1,10 @@
+The quick brown fox jumps over the lazy dog.
+The dog was not amused; the fox was happy.
+
+And then the fox said: "the the the!"
+A, a, and a; to, to, to.
+Of all the words, and the words, the best words win.
+
+Line breaks matter.
+Some lines are short.
+Some lines are longer than others.

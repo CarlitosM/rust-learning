@@ -1,0 +1,12 @@
+The THE the tHe.
+Punctuation should be ignored: hello, hello! "hello" (hello)?
+Case-insensitive matching: FIND me, fInD Me, fiNd me.
+
+Error: file not found.
+ERROR: something went wrong.
+warning: low disk space.
+Info: all systems nominal.
+
+Duplicate words should count.
+duplicate words should count.
+DUPLICATE words should COUNT.

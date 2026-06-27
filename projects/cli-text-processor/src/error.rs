@@ -1,6 +1,6 @@
 //! Error types for CLI argument parsing.
 
-use std::{error, fmt, num::ParseIntError};
+use std::{error, fmt, io::Error as IoError, num::ParseIntError};
 
 /// Name of a supported command associated with an argument parsing error.
 #[derive(Debug)]
@@ -49,5 +49,26 @@ impl From<ParseIntError> for ArgsError {
             ValidCommand("top-words".to_string()),
             InvalidParam(err.to_string()),
         )
+    }
+}
+
+#[derive(Debug)]
+pub enum ProcessError {
+    FileError(IoError),
+}
+
+impl error::Error for ProcessError {}
+
+impl fmt::Display for ProcessError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ProcessError::FileError(err) => write!(f, "file error: {err}"),
+        }
+    }
+}
+
+impl From<IoError> for ProcessError {
+    fn from(err: IoError) -> Self {
+        ProcessError::FileError(err)
     }
 }
