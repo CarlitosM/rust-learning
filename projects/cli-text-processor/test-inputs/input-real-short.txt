@@ -1,0 +1,32 @@
+Rust (programming language) is a multi-paradigm, general-purpose programming language focused on safety, speed, and concurrency. Rust achieves these goals by using a combination of ownership, borrow checking, and type inference to prevent many classes of memory and data race errors.
+
+Overview
+Rust is syntactically similar to C++ and Java, but it offers stronger guarantees than many languages. Its core feature is the ownership model: each value in Rust has a single owner, and ownership can be moved or borrowed according to static rules enforced by the compiler. Borrowing allows references to data without taking ownership, while the borrow checker ensures that references are used safely.
+
+History
+Rust was originally developed by Graydon Hoare at Mozilla Research. The project was later sponsored by Mozilla and began as a community effort. Over time, Rust gained popularity among systems programmers due to its performance characteristics and its emphasis on preventing undefined behavior.
+
+Design goals
+The language was designed with the goal of enabling reliable systems programming. Key themes include memory safety without a garbage collector, fearless concurrency, and a strong emphasis on tooling. Rust uses traits and generics to provide zero-cost abstractions, allowing high-level code to compile down to efficient machine code.
+
+Features
+One of Rust’s notable features is its type system. Traits define shared behavior between types and allow generic programming. Rust also supports pattern matching, powerful enums, and algebraic data types. Error handling is typically performed using the Result and Option types, which make failure explicit and encourage handling edge cases.
+
+Concurrency
+Rust provides concurrency primitives such as threads and channels, and its type system supports safe sharing and mutation patterns. The ownership and borrowing rules prevent data races at compile time, while also enabling efficient parallel execution.
+
+Tooling and ecosystem
+Rust’s ecosystem is built around Cargo, Rust’s package manager and build system. Cargo simplifies dependency management, compilation, testing, and documentation. The standard library provides many fundamental utilities, while crates.io hosts third-party packages for a wide range of needs.
+
+Community and adoption
+Rust has been adopted by various organizations for performance-critical systems. It is used in domains such as operating systems, command-line tools, web services, and embedded development. The Rust community emphasizes learning, documentation, and mentorship.
+
+Example
+Consider a simple program that adds two numbers. A function in Rust might take parameters by value or by reference, and return a computed result. The language encourages writing code that is explicit about ownership, lifetimes, and error handling, helping developers reason about correctness.
+
+See also
+Systems programming, memory safety, ownership (computer science), concurrency, and package management.
+
+Notes
+This file is for testing text processing commands such as stats, find, top-words, filter-lines, and longest-line. It includes repeated words like rust rust rust to make frequency counts interesting.
+Rust is also used multiple times: Rust, rust, RUST, and RuSt for case-insensitive behavior.

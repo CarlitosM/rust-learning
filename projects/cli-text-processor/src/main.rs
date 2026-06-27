@@ -2,6 +2,7 @@ use std::env;
 
 use crate::commands::{Command, get_help, get_help_all};
 use crate::error::ArgsError;
+use crate::processor::process_text;
 
 mod commands;
 mod error;
@@ -12,8 +13,12 @@ fn main() {
     let config = Config::new(&args);
 
     match config {
-        Ok(config) => {
-            todo!()
+        Ok(Config { command, file_name }) => {
+            let result = process_text(file_name, &command);
+            match result {
+                Ok(result) => println!("{result}"),
+                Err(err) => eprintln!("Error: {err:?}"),
+            }
         }
         Err(err) => {
             eprintln!("Error: {err:?}");

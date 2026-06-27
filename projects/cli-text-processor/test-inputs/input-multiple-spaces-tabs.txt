@@ -1,0 +1,13 @@
+This     line has    extra   spaces.
+This	line has	tabs.
+
+  Leading spaces should count as characters.
+Trailing spaces should count too: ends-here
+But words should still be recognized.
+
+Repeat repeat repeat.
+Repeat  repeat   repeat.
+REPEAT repeat REPEAT.
+
+Find: pattern occurs in multiple places.
+find: pattern occurs in multiple places too.
