@@ -20,7 +20,7 @@ pub fn process_text(file_name: Option<&str>, command: &Command) -> Result<String
         return Err(ProcessError::NoText);
     }
 
-    let result = match command.cmd {
+    let result = match &command.cmd {
         CommandType::Stats => {
             let stats_results = Stats::new(&text).print_results();
             if let Some(file_name) = &file_name {
@@ -28,6 +28,9 @@ pub fn process_text(file_name: Option<&str>, command: &Command) -> Result<String
             } else {
                 stats_results
             }
+        }
+        CommandType::Find(search) => {
+            Find::new(&text, search, command.case_sensitive).print_results()
         }
         _ => todo!(),
     };
@@ -79,6 +82,49 @@ impl Results for Stats {
     }
 }
 
+#[derive(Debug)]
+struct FoundLine {
+    line: String,
+    line_number: usize,
+}
+
+#[derive(Debug)]
+struct Find {
+    lines: Vec<FoundLine>,
+}
+
+impl Find {
+    fn new(text: &[String], search: &str, case_sensitive: bool) -> Self {
+        let lines = text
+            .iter()
+            .enumerate()
+            .filter(|(_, line)| {
+                if case_sensitive {
+                    line.contains(search)
+                } else {
+                    line.to_lowercase().contains(&search.to_lowercase())
+                }
+            })
+            .map(|(line_number, line)| FoundLine {
+                line: line.clone(),
+                line_number: line_number + 1,
+            })
+            .collect();
+
+        Self { lines }
+    }
+}
+
+impl Results for Find {
+    fn print_results(&self) -> String {
+        self.lines
+            .iter()
+            .map(|line| format!("Line {}: {}", line.line_number, line.line))
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -124,5 +170,108 @@ mod tests {
             stats.print_results(),
             "Lines: 2\nWords: 4\nCharacters: 19\nUnique words: 4"
         );
+    }
+
+    #[test]
+    fn find_new_collects_matching_lines_with_one_based_line_numbers() {
+        let input = text(&[
+            "Rust is fast",
+            "Python is readable",
+            "Learning Rust takes practice",
+        ]);
+
+        let find = Find::new(&input, "Rust", true);
+
+        assert_eq!(find.lines.len(), 2);
+        assert_eq!(find.lines[0].line, "Rust is fast");
+        assert_eq!(find.lines[0].line_number, 1);
+        assert_eq!(find.lines[1].line, "Learning Rust takes practice");
+        assert_eq!(find.lines[1].line_number, 3);
+    }
+
+    #[test]
+    fn find_new_excludes_non_matching_lines() {
+        let input = text(&["alpha", "beta", "gamma"]);
+
+        let find = Find::new(&input, "ta", true);
+
+        assert_eq!(find.lines.len(), 1);
+        assert_eq!(find.lines[0].line, "beta");
+        assert_eq!(find.lines[0].line_number, 2);
+    }
+
+    #[test]
+    fn find_new_returns_empty_results_when_pattern_is_not_found() {
+        let input = text(&["alpha", "beta", "gamma"]);
+
+        let find = Find::new(&input, "delta", true);
+
+        assert!(find.lines.is_empty());
+    }
+
+    #[test]
+    fn find_new_matches_case_sensitively() {
+        let input = text(&["Rust", "rust", "RUST"]);
+
+        let find = Find::new(&input, "Rust", true);
+
+        assert_eq!(find.lines.len(), 1);
+        assert_eq!(find.lines[0].line, "Rust");
+        assert_eq!(find.lines[0].line_number, 1);
+    }
+
+    #[test]
+    fn find_new_matches_case_insensitively_when_case_sensitive_is_false() {
+        let input = text(&["Rust", "rust", "RUST"]);
+
+        let find = Find::new(&input, "rust", false);
+
+        assert_eq!(find.lines.len(), 3);
+        assert_eq!(find.lines[0].line, "Rust");
+        assert_eq!(find.lines[0].line_number, 1);
+        assert_eq!(find.lines[1].line, "rust");
+        assert_eq!(find.lines[1].line_number, 2);
+        assert_eq!(find.lines[2].line, "RUST");
+        assert_eq!(find.lines[2].line_number, 3);
+    }
+
+    #[test]
+    fn find_print_results_formats_matching_lines() {
+        let find = Find {
+            lines: vec![
+                FoundLine {
+                    line: "Rust is fast".to_string(),
+                    line_number: 1,
+                },
+                FoundLine {
+                    line: "Learning Rust takes practice".to_string(),
+                    line_number: 3,
+                },
+            ],
+        };
+
+        assert_eq!(
+            find.print_results(),
+            "Line 1: Rust is fast\nLine 3: Learning Rust takes practice"
+        );
+    }
+
+    #[test]
+    fn find_print_results_formats_single_match_without_trailing_newline() {
+        let find = Find {
+            lines: vec![FoundLine {
+                line: "only match".to_string(),
+                line_number: 2,
+            }],
+        };
+
+        assert_eq!(find.print_results(), "Line 2: only match");
+    }
+
+    #[test]
+    fn find_print_results_returns_empty_string_for_no_matches() {
+        let find = Find { lines: Vec::new() };
+
+        assert_eq!(find.print_results(), "");
     }
 }
