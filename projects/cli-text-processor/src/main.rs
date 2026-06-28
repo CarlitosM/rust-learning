@@ -14,7 +14,7 @@ fn main() {
 
     match config {
         Ok(Config { command, file_name }) => {
-            let result = process_text(file_name, &command);
+            let result = process_text(file_name.as_deref(), &command);
             match result {
                 Ok(result) => println!("{result}"),
                 Err(err) => eprintln!("Error: {err:?}"),
