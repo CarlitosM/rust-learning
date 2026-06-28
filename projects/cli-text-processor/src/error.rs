@@ -55,6 +55,7 @@ impl From<ParseIntError> for ArgsError {
 #[derive(Debug)]
 pub enum ProcessError {
     FileError(IoError),
+    NoText,
 }
 
 impl error::Error for ProcessError {}
@@ -63,6 +64,7 @@ impl fmt::Display for ProcessError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ProcessError::FileError(err) => write!(f, "file error: {err}"),
+            ProcessError::NoText => write!(f, "no text"),
         }
     }
 }
